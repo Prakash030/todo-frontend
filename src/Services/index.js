@@ -8,7 +8,7 @@ const apiUrl = process.env.REACT_APP_API_URL;
 
 export const register = async (name, email, password) => {
     try {
-        const response = await axios.post(`${apiUrl} + ${apiEndPoints.REGISTER}`, { name, email, password });
+        const response = await axios.post(apiUrl + apiEndPoints.REGISTER, { name, email, password });
         return response?.data;
     } catch (error) {
         throw new Error(error.message);
