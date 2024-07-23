@@ -26,14 +26,20 @@ const Header = () => {
   const user = useSelector((state) => state.user.userInfo);
   return (
     <>
-    <div className='flex items-center justify-between bg-gray-500 rounded-md px-5 py-2'>
+      <div className='flex items-center justify-between bg-gray-500 rounded-md px-5 py-2'>
         <h1 className='text-xl font-bold '>Todo List</h1>
         <div className='flex items-center justify-center gap-10'>
-        <img src={user?.profilePicture ?? `https://ui-avatars.com/api/?name=${user?.name}`} alt="" height={20} width={50} className='rounded-full' />
-        <button className="bg-black hover:bg-[#E9522C] px-4 py-2 rounded-md" onClick={handleLogout}>Logout</button>
-        </div> 
-    </div>
-        {/* <ToastContainer />    */}
+          <img
+            src={user?.profilePicture ? user.profilePicture : `https://ui-avatars.com/api/?name=${user?.name}`}
+            alt={user?.name || "User"}
+            height={20}
+            width={50}
+            className='rounded-full'
+          />
+          <button className="bg-black hover:bg-[#E9522C] px-4 py-2 rounded-md" onClick={handleLogout}>Logout</button>
+        </div>
+      </div>
+      {/* <ToastContainer />    */}
     </>
   )
 }
