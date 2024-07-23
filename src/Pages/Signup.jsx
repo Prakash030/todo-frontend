@@ -1,13 +1,77 @@
 import React, { useState } from "react";
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
-import { Link } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
+import {useGoogleLogin} from '@react-oauth/google';
+import { toast, ToastContainer } from 'react-toastify';
+import { useSelector, useDispatch } from 'react-redux';
+import { setUserInfo, clearUserInfo } from '../Utils/userActions';
+import { register, registerGoogle } from "../Services";
+import 'react-toastify/dist/ReactToastify.css';
+
+
 
 const Signup = () => {
 
     const [showPassword, setShowPassword] = useState(false);
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [name, setName] = useState('');
+    const[confirmPassword, setConfirmPassword] = useState('');
+    const navigate = useNavigate();
+    const dispatch = useDispatch();
+    const userInfo = useSelector((state) => state.user.userInfo);
+
     const togglePasswordVisibility = () => {
         setShowPassword(!showPassword);
     };
+
+    const handleRegister = async() => {
+
+        if (!email || !password || !name || !confirmPassword) {
+            return toast.error('All fields are required');
+        }
+        if(password !== confirmPassword){
+            return toast.error('Passwords do not match');
+        }
+        try {
+            const response = await register(name, email, password);
+            console.log(response);
+            if (response?.status) {
+                dispatch(setUserInfo(response?.user));
+                localStorage.setItem("todoToken", response?.token);
+                toast.success(response.message);
+                navigate('/');
+            } else {
+                toast.error("Invalid credentials");
+            }
+        } catch (error) {
+            toast.error("Invalid credentials");
+        }
+    }
+
+    const handleGoogleLoginSuccess = async (tokenResponse) => {
+
+        const accessToken = tokenResponse.access_token;
+
+        try {
+            const response = await registerGoogle(accessToken);
+            console.log(response);
+            if (response?.status) {
+                dispatch(setUserInfo(response?.user));
+                localStorage.setItem("todoToken", response?.token);
+                toast.success(response?.message);
+                navigate('/');
+            } else {
+                toast.error("User already exists");
+            }
+
+        } catch (error) {
+            console.log(error);
+            toast.error("Invalid credentials");
+        }
+    }
+
+    const login = useGoogleLogin({onSuccess: handleGoogleLoginSuccess});
 
 
     return (
@@ -31,6 +95,8 @@ const Signup = () => {
                                     }`}
                                 type="text"
                                 placeholder="Your Full Name"
+                                value={name}
+                                onChange={(e) => setName(e.target.value)}
                             />
                         </div>
                         <input
@@ -38,6 +104,8 @@ const Signup = () => {
                                 }`}
                             type="email"
                             placeholder="Enter your email"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
                         />
                         <div className="relative w-full">
                             <input
@@ -45,6 +113,8 @@ const Signup = () => {
                                     }`}
                                 type={showPassword ? "text" : "password"}
                                 placeholder="Password"
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
                             />
                             <button
                                 type="button"
@@ -60,6 +130,8 @@ const Signup = () => {
                                     }`}
                                 type={showPassword ? "text" : "password"}
                                 placeholder="Confirm Password"
+                                value={confirmPassword}
+                                onChange={(e) => setConfirmPassword(e.target.value)}
                             />
                             <button
                                 type="button"
@@ -70,7 +142,11 @@ const Signup = () => {
                             </button>
                         </div>
                         <button className="mt-5 tracking-wide font-semibold bg-[#E9522C] text-gray-100 w-full py-4 rounded-lg hover:bg-[#E9522C]/90 transition-all duration-300 ease-in-out flex items-center justify-center focus:shadow-outline focus:outline-none">
-                            <span className="ml-3">Register</span>
+                            <span className="ml-3" onClick={handleRegister}>Register</span>
+                        </button>
+                        <p className="text-center">Or</p>
+                        <button className="mt-1 tracking-wide font-semibold bg-[#E9522C] text-gray-100 w-full py-4 rounded-lg hover:bg-[#E9522C]/90 transition-all duration-300 ease-in-out flex items-center justify-center focus:shadow-outline focus:outline-none">
+                            <span className="ml-3" onClick={login}>Signup using Google</span>
                         </button>
                         <p className="mt-6 text-xs text-gray-600 text-center">
                             Already have an account?{" "}
@@ -84,6 +160,7 @@ const Signup = () => {
                     </div>
                 </div>
             </div>
+            <ToastContainer />
         </div>
     );
 };
