@@ -1,5 +1,7 @@
 # Getting Started with Todo App
 
+## Live URL : https://todo-frontend-two-beryl.vercel.app/
+
 This application supports login, register, and Google Authentication.
 
 In this application, we can do the CRUD operation for each task created.
